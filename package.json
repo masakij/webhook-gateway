@@ -1,0 +1,46 @@
+{
+  "name": "webhook-gateway",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/masakij/webhook-gateway.git"
+  },
+  "keywords": [
+    "gitlab",
+    "elasticsearch"
+  ],
+  "author": "masakij",
+  "license": "MIT",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.5.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "body-parser": "^1.17.2",
+    "elasticsearch": "^13.0.1",
+    "express": "^4.15.3",
+    "require-dir": "^0.3.1",
+    "rimraf": "^2.6.1"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ],
+      "stage-2"
+    ]
+  },
+  "scripts": {
+    "prestart": "npm run -s build",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist",
+    "build": "npm run clean && mkdir -p dist && babel src -s -D -d dist"
+  }
+}
