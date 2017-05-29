@@ -1,18 +1,22 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import requireDir from 'require-dir';
-import elasticsearch from 'elasticsearch';
-import { ES_HOST } from './config';
 
 const routes = requireDir('./routes');
+const connectors = (() => {
+  const c = requireDir('./connectors');
+  return Object.keys(c).reduce((m, k) => {
+    const v = c[k];
+    console.log(`(${k}) connector: ${v.name}`);
+    return Object.assign({}, m, {
+      [v.name]: v.action,
+    });
+  }, {});
+})();
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-
-const client = new elasticsearch.Client({
-  host: ES_HOST,
-});
 
 Object.keys(routes).forEach((k) => {
   const v = routes[k];
@@ -21,25 +25,25 @@ Object.keys(routes).forEach((k) => {
     try {
       const start = new Date();
       console.log(`[${start}] starting ${v.path}`);
-      const docs = await v.action(req);
+      const data = await v.action(req);
 
-      console.log(`[${new Date}] POST `, docs);
-      const body = (docs || []).reduce((m, d) => {
-        m.push({
-          index: {
-            _index: d.index,
-            _type: d.type,
-          },
-        });
-        m.push(d.doc);
+      console.log(`[${new Date}] data`, data);
+      const groups = (data || []).reduce((m, d) => {
+        const g = m[d.connector] || []
+        g.push(d);
+        m[d.connector] = g;
         return m;
-      }, []);
-      if (body && body.length) {
-        const r = await client.bulk({ body });
-        console.log(`[${new Date}] bulk insert`, r, r.items);
-      } else {
-        console.warn('No Data');
-      }
+      }, {});
+
+      await Promise.all(Object.keys(groups).map(async (k) => {
+        const c = connectors[k];
+        if (c) {
+          await c(groups[k]);
+        } else {
+          console.warn(`CONNECTOR NOT FOUND: ${k}`);
+        }
+        return true;
+      }));
 
       res.sendStatus(200);
       const end = new Date();
