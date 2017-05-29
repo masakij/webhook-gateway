@@ -29,9 +29,9 @@ Object.keys(routes).forEach((k) => {
 
       console.log(`[${new Date}] data`, data);
       const groups = (data || []).reduce((m, d) => {
-        const g = m[d.conector] || []
+        const g = m[d.connector] || []
         g.push(d);
-        m[d.conector] = g;
+        m[d.connector] = g;
         return m;
       }, {});
 
