@@ -20,7 +20,7 @@
     "babel-preset-env": "^1.5.0",
     "babel-preset-stage-2": "^6.24.1",
     "body-parser": "^1.18.2",
-    "elasticsearch": "^13.0.1",
+    "elasticsearch": "^13.3.1",
     "express": "^4.16.2",
     "require-dir": "^0.3.1",
     "rimraf": "^2.6.1"
