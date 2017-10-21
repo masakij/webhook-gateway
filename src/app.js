@@ -3,11 +3,12 @@ import bodyParser from 'body-parser';
 import requireDir from 'require-dir';
 
 const routes = requireDir('./routes');
+console.log('connectors:');
 const connectors = (() => {
   const c = requireDir('./connectors');
   return Object.keys(c).reduce((m, k) => {
     const v = c[k];
-    console.log(`(${k}) connector: ${v.name}`);
+    console.log(`\t(${k}) connector: ${v.name}`);
     return Object.assign({}, m, {
       [v.name]: v.action,
     });
@@ -18,9 +19,10 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+console.log('routes:');
 Object.keys(routes).forEach((k) => {
   const v = routes[k];
-  console.log(`(${k}) path: ${v.path}`);
+  console.log(`\t(${k}) path: ${v.path}`);
   app.use(v.path, async (req, res, next) => {
     try {
       const start = new Date();
